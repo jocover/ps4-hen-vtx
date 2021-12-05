@@ -41,6 +41,7 @@ extern int my_sceSblKeymgrSmCallfunc_npdrm_decrypt_isolated_rif(union keymgr_pay
 extern int my_sceSblKeymgrSmCallfunc_npdrm_decrypt_rif_new(union keymgr_payload* payload) PAYLOAD_CODE;
 extern int my_sceSblKeymgrSetKeyStorage__sceSblDriverSendMsg(struct sbl_msg* msg, size_t size) PAYLOAD_CODE;
 extern int my_mountpfs__sceSblPfsSetKeys(uint32_t* ekh, uint32_t* skh, uint8_t* eekpfs, struct ekc* eekc, unsigned int pubkey_ver, unsigned int key_ver, struct pfs_header* hdr, size_t hdr_size, unsigned int type, unsigned int finalized, unsigned int is_disc) PAYLOAD_CODE;
+extern int disable_sysver_check() PAYLOAD_CODE;
 
 static const uint8_t s_ypkg_p[0x80] PAYLOAD_RDATA = {
 	0x2D, 0xE8, 0xB4, 0x65, 0xBE, 0x05, 0x78, 0x6A, 0x89, 0x31, 0xC9, 0x5A, 0x44, 0xDE, 0x50, 0xC1,
@@ -460,6 +461,10 @@ done:
 	return ret;
 }
 
+PAYLOAD_CODE int disable_sysver_check(){
+	return 0;
+};
+
 PAYLOAD_CODE void install_fpkg_hooks()
 {
 	uint64_t flags, cr0;
@@ -475,6 +480,8 @@ PAYLOAD_CODE void install_fpkg_hooks()
 	KCALL_REL32(kernbase, sceSblKeymgrInvalidateKey__sx_xlock_hook, (uint64_t)my_sceSblKeymgrInvalidateKey__sx_xlock);
 	KCALL_REL32(kernbase, mountpfs__sceSblPfsSetKeys_hook1, (uint64_t)my_mountpfs__sceSblPfsSetKeys);
 	KCALL_REL32(kernbase, mountpfs__sceSblPfsSetKeys_hook2, (uint64_t)my_mountpfs__sceSblPfsSetKeys);
+	KCALL_REL32(kernbase,disable_sysver_hook1,(uint64_t)disable_sysver_check);
+	KCALL_REL32(kernbase,disable_sysver_hook2,(uint64_t)disable_sysver_check);
 
 	intr_restore(flags);
 	writeCr0(cr0);

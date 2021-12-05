@@ -9,8 +9,6 @@
 #define LOG_IP   "192.168.1.3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
 #define LOG_PORT 9023
 
-#define FAKE_FW_VERSION 0x07020000
-
 struct filedesc {
 	void *useless1[3];
 	void *fd_rdir;

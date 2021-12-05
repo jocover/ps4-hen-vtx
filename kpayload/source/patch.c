@@ -244,6 +244,44 @@ PAYLOAD_CODE int shellcore_fpkg_patch(void)
         goto error;
     }
 
+    //disable SceSblSysVer check
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0xC791A0), 3, "\x31\xC0\xC3", &n);
+    if (ret) {
+        goto error;
+    }
+
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0x3CCB10), 4, "\x48\x31\xC0\xC3", &n);
+    if (ret) {
+        goto error;
+    }
+
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0x3CF8D0), 4, "\x48\x31\xC0\xC3", &n);
+    if (ret) {
+        goto error;
+    }
+
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0x75AEF0), 8, "\x48\xC7\xC0\xFF\xFF\xFF\xFF\xC3", &n);
+    if (ret) {
+        goto error;
+    }
+
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0x13097F), 2, "\x90\xE9", &n);
+    if (ret) {
+        goto error;
+    }
+
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0x130A71), 1, "\xEB", &n);
+    if (ret) {
+        goto error;
+    }
+
+    ret = proc_write_mem(ssc, (void *)(text_seg_base + 0x3CCB79), 1, "\xEB", &n);
+    if (ret) {
+        goto error;
+    }
+
+
+
 error:
 	if (entries)
 		dealloc(entries);

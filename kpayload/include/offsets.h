@@ -121,4 +121,8 @@
 // disable screenshot block
 #define disable_screenshot_patch        0x0CB8C6
 
+//disable SysVer check patch
+#define disable_sysver_hook1            0x629B30
+#define disable_sysver_hook2            0x629A80
+
 #endif
