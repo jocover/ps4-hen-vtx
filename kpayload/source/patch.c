@@ -432,32 +432,6 @@ PAYLOAD_CODE int remoteplay_patch() {
     return ret;
 }
 
-PAYLOAD_CODE void set_dipsw(int debug_patch) {
-	uint64_t kernbase = getkernbase();
-
-	uint64_t cr0 = readCr0();
-	writeCr0(cr0 & ~X86_CR0_WP);
-	uint64_t flags = intr_disable();
-
-	uint8_t *dipsw = (uint8_t *)(kernbase + DIPSW_addr);
-	dipsw[0x36] = debug_patch ? 0x37 : 0x24;
-	dipsw[0x59] = debug_patch ? 0x03 : 0x00;
-	dipsw[0x5A] = debug_patch ? 0x01 : 0x00;
-	dipsw[0x78] = debug_patch ? 0x01 : 0x00;
-
-	intr_restore(flags);
-	writeCr0(cr0);
-}
-
-PAYLOAD_CODE void patch_debug_dipsw()
-{
-	set_dipsw(1);
-}
-
-PAYLOAD_CODE void restore_retail_dipsw()
-{
-	set_dipsw(0);
-}
 
 PAYLOAD_CODE void apply_patches() {
 	shellui_patch();
@@ -467,6 +441,5 @@ PAYLOAD_CODE void apply_patches() {
 PAYLOAD_CODE void install_patches()
 {
 	apply_patches();
-	eventhandler_register(NULL, "system_suspend_phase3", &restore_retail_dipsw, NULL, EVENTHANDLER_PRI_PRE_FIRST);
-	eventhandler_register(NULL, "system_resume_phase4", &apply_patches, NULL, EVENTHANDLER_PRI_LAST);
+	eventhandler_register(NULL, "system_resume_phase3", &apply_patches, NULL, EVENTHANDLER_PRI_LAST);
 }
