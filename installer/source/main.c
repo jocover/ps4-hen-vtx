@@ -105,8 +105,8 @@ static inline void patch_update(void)
 	unlink(PS4_UPDATE_FULL_PATH);
 	unlink(PS4_UPDATE_TEMP_PATH);
 
-	mkdir(PS4_UPDATE_FULL_PATH, 0777);
-	mkdir(PS4_UPDATE_TEMP_PATH, 0777);
+	mkdir(PS4_UPDATE_FULL_PATH, 0511);
+	mkdir(PS4_UPDATE_TEMP_PATH, 0511);
 }
 
 int _main(struct thread *td) 

@@ -17,6 +17,7 @@ extern void (*free)(void* addr, void* type) PAYLOAD_BSS;
 extern char * (*strstr) (const char *haystack, const char *needle) PAYLOAD_BSS;
 extern void* (*memcpy)(void* dst, const void* src, size_t len) PAYLOAD_BSS;
 extern size_t (*strlen)(const char *str) PAYLOAD_BSS;
+extern struct sysentvec* sysvec PAYLOAD_BSS;
 
 extern void* M_TEMP PAYLOAD_BSS;
 extern uint8_t* MINI_SYSCORE_SELF_BINARY PAYLOAD_BSS;
@@ -362,6 +363,32 @@ PAYLOAD_CODE int my_sceSblAuthMgrIsLoadable__sceSblACMgrGetPathId(const char* pa
 	return ret;
 }
 
+
+PAYLOAD_CODE void HookFunctionCall(uint8_t* p_HookTrampoline, void* p_Function, void* p_Address){
+	uint8_t* s_HookPayload = p_HookTrampoline;
+	uint16_t* s_TempAddress = (uint16_t*)p_HookTrampoline;
+
+	s_TempAddress++;
+
+	uint64_t* s_FunctionAddress = (uint64_t*)s_TempAddress;
+	s_HookPayload[0] = 0x48;
+	s_HookPayload[1] = 0xB8;
+
+	*s_FunctionAddress = (uint64_t)(p_Function);
+
+	s_HookPayload[0x0A] = 0xFF;
+	s_HookPayload[0x0B] = 0xE0;
+
+	int32_t s_CallAddress = (int32_t)(p_HookTrampoline - (uint8_t*)p_Address) - 5;
+	s_HookPayload = (uint8_t*)(p_Address);
+	s_HookPayload++;
+
+	int32_t* s_Pointer = (int32_t*)(s_HookPayload);
+	*s_Pointer = s_CallAddress;
+
+}
+
+
 PAYLOAD_CODE void install_fself_hooks()
 {
 	uint64_t flags, cr0;
@@ -371,12 +398,19 @@ PAYLOAD_CODE void install_fself_hooks()
 	writeCr0(cr0 & ~X86_CR0_WP);
 	flags = intr_disable();
 
-	KCALL_REL32(kernbase, sceSblAuthMgrIsLoadable2_hook, (uint64_t)my_sceSblAuthMgrIsLoadable2);
-	KCALL_REL32(kernbase, sceSblAuthMgrVerifyHeader_hook1, (uint64_t)my_sceSblAuthMgrVerifyHeader);
-	KCALL_REL32(kernbase, sceSblAuthMgrVerifyHeader_hook2, (uint64_t)my_sceSblAuthMgrVerifyHeader);
-	KCALL_REL32(kernbase, sceSblAuthMgrSmLoadSelfSegment__sceSblServiceMailbox_hook, (uint64_t)my_sceSblAuthMgrSmLoadSelfSegment__sceSblServiceMailbox);
-	KCALL_REL32(kernbase, sceSblAuthMgrSmLoadSelfBlock__sceSblServiceMailbox_hook, (uint64_t)my_sceSblAuthMgrSmLoadSelfBlock__sceSblServiceMailbox);
-	KCALL_REL32(kernbase, sceSblAuthMgrIsLoadable__sceSblACMgrGetPathId_hook, (uint64_t)my_sceSblAuthMgrIsLoadable__sceSblACMgrGetPathId);
+	struct sysent* sysents=sysvec->sv_table;
+
+	uint8_t* s_TrampolineA=(uint8_t*)sysents[409].sy_call;
+	uint8_t* s_TrampolineB=(uint8_t*)sysents[384].sy_call;
+	uint8_t* s_TrampolineC=(uint8_t*)sysents[385].sy_call;
+	uint8_t* s_TrampolineD=(uint8_t*)sysents[387].sy_call;
+	uint8_t* s_TrampolineE=(uint8_t*)sysents[386].sy_call;
+
+	HookFunctionCall(s_TrampolineA,my_sceSblAuthMgrVerifyHeader,kernbase+sceSblAuthMgrVerifyHeader_hook1);
+	HookFunctionCall(s_TrampolineB,my_sceSblAuthMgrVerifyHeader,kernbase+sceSblAuthMgrVerifyHeader_hook2);
+	HookFunctionCall(s_TrampolineC,my_sceSblAuthMgrIsLoadable2,kernbase+sceSblAuthMgrIsLoadable2_hook);
+	HookFunctionCall(s_TrampolineD,my_sceSblAuthMgrSmLoadSelfSegment__sceSblServiceMailbox,kernbase+sceSblAuthMgrSmLoadSelfSegment__sceSblServiceMailbox_hook);
+	HookFunctionCall(s_TrampolineE,my_sceSblAuthMgrSmLoadSelfBlock__sceSblServiceMailbox,kernbase+sceSblAuthMgrSmLoadSelfBlock__sceSblServiceMailbox_hook);
 
 	intr_restore(flags);
 	writeCr0(cr0);

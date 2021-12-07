@@ -17,6 +17,7 @@ extern int (*fpu_kern_enter)(struct thread *td, struct fpu_kern_ctx *ctx, uint32
 extern int (*fpu_kern_leave)(struct thread *td, struct fpu_kern_ctx *ctx) PAYLOAD_BSS;
 extern void* (*memcpy)(void* dst, const void* src, size_t len) PAYLOAD_BSS;
 extern void* (*memset)(void *s, int c, size_t n) PAYLOAD_BSS;
+extern struct sysentvec* sysvec PAYLOAD_BSS;
 
 extern struct sbl_map_list_entry** SBL_DRIVER_MAPPED_PAGES PAYLOAD_BSS;
 extern struct sx* SBL_PFS_SX PAYLOAD_BSS;
@@ -42,6 +43,7 @@ extern int my_sceSblKeymgrSmCallfunc_npdrm_decrypt_rif_new(union keymgr_payload*
 extern int my_sceSblKeymgrSetKeyStorage__sceSblDriverSendMsg(struct sbl_msg* msg, size_t size) PAYLOAD_CODE;
 extern int my_mountpfs__sceSblPfsSetKeys(uint32_t* ekh, uint32_t* skh, uint8_t* eekpfs, struct ekc* eekc, unsigned int pubkey_ver, unsigned int key_ver, struct pfs_header* hdr, size_t hdr_size, unsigned int type, unsigned int finalized, unsigned int is_disc) PAYLOAD_CODE;
 extern int disable_sysver_check() PAYLOAD_CODE;
+extern void HookFunctionCall(uint8_t* p_HookTrampoline, void* p_Function, void* p_Address) PAYLOAD_CODE;
 
 static const uint8_t s_ypkg_p[0x80] PAYLOAD_RDATA = {
 	0x2D, 0xE8, 0xB4, 0x65, 0xBE, 0x05, 0x78, 0x6A, 0x89, 0x31, 0xC9, 0x5A, 0x44, 0xDE, 0x50, 0xC1,
@@ -465,6 +467,7 @@ PAYLOAD_CODE int disable_sysver_check(){
 	return 0;
 };
 
+
 PAYLOAD_CODE void install_fpkg_hooks()
 {
 	uint64_t flags, cr0;
@@ -474,12 +477,27 @@ PAYLOAD_CODE void install_fpkg_hooks()
 	writeCr0(cr0 & ~X86_CR0_WP);
 	flags = intr_disable();
 
-	KCALL_REL32(kernbase, sceSblKeymgrSmCallfunc_npdrm_decrypt_isolated_rif_hook, (uint64_t)my_sceSblKeymgrSmCallfunc_npdrm_decrypt_isolated_rif);
-	KCALL_REL32(kernbase, sceSblKeymgrSmCallfunc_npdrm_decrypt_rif_new_hook, (uint64_t)my_sceSblKeymgrSmCallfunc_npdrm_decrypt_rif_new);
-	KCALL_REL32(kernbase, sceSblKeymgrSetKeyStorage__sceSblDriverSendMsg_hook, (uint64_t)my_sceSblKeymgrSetKeyStorage__sceSblDriverSendMsg);
-	KCALL_REL32(kernbase, sceSblKeymgrInvalidateKey__sx_xlock_hook, (uint64_t)my_sceSblKeymgrInvalidateKey__sx_xlock);
-	KCALL_REL32(kernbase, mountpfs__sceSblPfsSetKeys_hook1, (uint64_t)my_mountpfs__sceSblPfsSetKeys);
-	KCALL_REL32(kernbase, mountpfs__sceSblPfsSetKeys_hook2, (uint64_t)my_mountpfs__sceSblPfsSetKeys);
+	struct sysent* sysents=sysvec->sv_table;
+
+	uint8_t* s_TrampolineF=(uint8_t*)sysents[410].sy_call;
+	uint8_t* s_TrampolineG=(uint8_t*)sysents[338].sy_call;
+	uint8_t* s_TrampolineH=(uint8_t*)sysents[389].sy_call;
+	uint8_t* s_TrampolineI=(uint8_t*)sysents[411].sy_call;
+	uint8_t* s_TrampolineJ=(uint8_t*)sysents[394].sy_call;
+	uint8_t* s_TrampolineK=(uint8_t*)sysents[415].sy_call;
+
+	HookFunctionCall(s_TrampolineF,my_sceSblKeymgrSmCallfunc_npdrm_decrypt_isolated_rif,kernbase+sceSblKeymgrSmCallfunc_npdrm_decrypt_isolated_rif_hook);
+
+	HookFunctionCall(s_TrampolineG,my_sceSblKeymgrSmCallfunc_npdrm_decrypt_rif_new,kernbase+sceSblKeymgrSmCallfunc_npdrm_decrypt_rif_new_hook);
+
+	HookFunctionCall(s_TrampolineH,my_mountpfs__sceSblPfsSetKeys,kernbase+mountpfs__sceSblPfsSetKeys_hook1);
+	HookFunctionCall(s_TrampolineI,my_mountpfs__sceSblPfsSetKeys,kernbase+mountpfs__sceSblPfsSetKeys_hook2);
+
+	HookFunctionCall(s_TrampolineJ,my_sceSblKeymgrSetKeyStorage__sceSblDriverSendMsg,kernbase+sceSblKeymgrSetKeyStorage__sceSblDriverSendMsg_hook);
+
+	HookFunctionCall(s_TrampolineK,my_sceSblKeymgrInvalidateKey__sx_xlock,kernbase+sceSblKeymgrInvalidateKey__sx_xlock_hook);
+
+
 	KCALL_REL32(kernbase,disable_sysver_hook1,(uint64_t)disable_sysver_check);
 	KCALL_REL32(kernbase,disable_sysver_hook2,(uint64_t)disable_sysver_check);
 

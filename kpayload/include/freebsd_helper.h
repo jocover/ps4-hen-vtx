@@ -153,4 +153,21 @@ TYPE_BEGIN(struct proc, 0x800); // XXX: random, don't use directly without fixin
 	TYPE_FIELD(char p_comm[32], 0x44C); // 5.05
 TYPE_END();
 
+TYPE_BEGIN(struct sysent, 0x30);
+	TYPE_FIELD(uint32_t sy_narg, 0x00);
+	TYPE_FIELD(void *sy_call, 0x08);
+	TYPE_FIELD(uint16_t sy_auevent, 0x10);
+	TYPE_FIELD(uint64_t sy_systrace_args_func, 0x18);
+	TYPE_FIELD(uint32_t sy_entry, 0x20);
+	TYPE_FIELD(uint32_t sy_return, 0x24);
+	TYPE_FIELD(uint32_t sy_flags, 0x28);
+	TYPE_FIELD(uint32_t sy_thrcnt, 0x2C);
+TYPE_END();
+
+TYPE_BEGIN(struct sysentvec, 0x100);
+	TYPE_FIELD(int sv_size, 0);
+	TYPE_FIELD(struct sysent *sv_table, 0x8);
+TYPE_END();
+
+
 #endif

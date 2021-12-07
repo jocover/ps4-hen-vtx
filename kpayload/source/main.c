@@ -26,6 +26,7 @@ void* (*memset)(void *s, int c, size_t n) PAYLOAD_BSS;
 size_t (*strlen)(const char *str) PAYLOAD_BSS;
 int (*printf)(const char *fmt, ...) PAYLOAD_BSS;
 void (*eventhandler_register)(void *list, const char *name, void *func, void *arg, int priority) PAYLOAD_BSS;
+struct sysentvec* sysvec PAYLOAD_BSS;
 
 void* M_TEMP PAYLOAD_BSS;
 uint8_t* MINI_SYSCORE_SELF_BINARY PAYLOAD_BSS;
@@ -116,6 +117,7 @@ PAYLOAD_CODE void resolve_kdlsym()
 	resolve(strlen);
 	resolve(printf);
 	resolve(eventhandler_register);
+	resolve(sysvec);
 
 	// Fself
 	resolve(sceSblACMgrGetPathId);

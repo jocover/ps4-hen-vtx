@@ -30,6 +30,7 @@
 #define strlen_addr                     0x3B71A0
 #define printf_addr                     0x436040
 #define eventhandler_register_addr      0x1EC400
+#define sysvec_addr                     0x019BBCD0
 
 // Fself
 #define sceSblACMgrGetPathId_addr       0x0117E0
