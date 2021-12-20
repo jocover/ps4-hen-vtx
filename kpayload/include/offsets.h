@@ -50,6 +50,10 @@
 #define sceSblKeymgrSetKeyForPfs_addr   0x62D780
 #define sceSblKeymgrCleartKey_addr      0x62DB10
 #define sceSblKeymgrSmCallfunc_addr     0x62E2A0
+#define sceSblKeymgrSetKey_addr         0x62D950
+#define sceSblServiceCrypt_addr		0x6242F0
+#define sceSblDriverUnmapPages_addr     0x61C530
+#define sceSblDriverMapPages_addr       0x61BD90
 
 // Patch
 #define vmspace_acquire_ref_addr        0x19EF90

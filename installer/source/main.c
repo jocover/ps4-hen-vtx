@@ -62,27 +62,24 @@ int install_payload(struct thread *td, struct install_payload_args* args)
 	writeCr0(cr0 & ~X86_CR0_WP);
 
 	// debug menu error patches 5.05
-	*(uint32_t *)(kernel_base + debug_menu_error_patch1) = 0;
-	*(uint32_t *)(kernel_base + debug_menu_error_patch2) = 0;
+//	*(uint32_t *)(kernel_base + debug_menu_error_patch1) = 0;
+//	*(uint32_t *)(kernel_base + debug_menu_error_patch2) = 0;
 
 	// flatz disable pfs signature check 5.05
-	*(uint32_t *)(kernel_base + disable_signature_check_patch) = 0x90C3C031;
+//	*(uint32_t *)(kernel_base + disable_signature_check_patch) = 0x90C3C031;
 
 	// flatz enable debug RIFs 5.05
-	*(uint32_t *)(kernel_base + enable_debug_rifs_patch1) = 0x90C301B0;
-	*(uint32_t *)(kernel_base + enable_debug_rifs_patch2) = 0x90C301B0;
+//	*(uint32_t *)(kernel_base + enable_debug_rifs_patch1) = 0x90C301B0;
+//	*(uint32_t *)(kernel_base + enable_debug_rifs_patch2) = 0x90C301B0;
 
 	// flatz allow sys_dynlib_dlsym in all processes 5.05
-	*(uint64_t*)(kernel_base + sys_dynlib_dlsym_patch) = 0x8B4890000001C1E9;
-
-	// spoof sdk_version - enable vr 5.05
-	*(uint32_t *)(kernel_base + sdk_version_patch) = FAKE_FW_VERSION;
+//	*(uint64_t*)(kernel_base + sys_dynlib_dlsym_patch) = 0x8B4890000001C1E9;
 
 	// enable debug log
-	*(uint16_t*)(kernel_base + enable_debug_log_patch) = 0x38EB;
+//	*(uint16_t*)(kernel_base + enable_debug_log_patch) = 0x38EB;
 
 	// enable uart output
-	*(uint32_t *)(kernel_base + enable_uart_patch) = 0;
+//	*(uint32_t *)(kernel_base + enable_uart_patch) = 0;
 
 	// install kpayload
 	memset(payload_buffer, 0, PAGE_SIZE);
@@ -108,8 +105,8 @@ static inline void patch_update(void)
 	unlink(PS4_UPDATE_FULL_PATH);
 	unlink(PS4_UPDATE_TEMP_PATH);
 
-	mkdir(PS4_UPDATE_FULL_PATH, 0777);
-	mkdir(PS4_UPDATE_TEMP_PATH, 0777);
+	mkdir(PS4_UPDATE_FULL_PATH, 0511);
+	mkdir(PS4_UPDATE_TEMP_PATH, 0511);
 }
 
 int _main(struct thread *td) 
@@ -136,7 +133,7 @@ int _main(struct thread *td)
 	result = !result ? 0 : errno;
 	printfsocket("install_payload: %d\n", result);
 
-	patch_update();
+//	patch_update();
 
 	initSysUtil();
 	notify("Welcome to PS4HEN v"VERSION);

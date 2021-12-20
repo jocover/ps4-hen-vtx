@@ -21,19 +21,22 @@ union ccp_op {
 		uint32_t status;
 	} common;
 	struct {
-		uint32_t cmd;
-		uint32_t status;
-		uint64_t data_size;
-		uint64_t in_data;
-		uint64_t out_data;
+		uint32_t cmd;//0x00
+		uint32_t status;//0x04
+		uint64_t data_size;//0x08
+		uint64_t data;//0x10
+		uint64_t data_size_bits;//0x18
+		uint8_t hash[0x20]; //0x20
 		union {
 			uint32_t key_index;
-			uint8_t key[0x20];
+			uint8_t key[0x40];
 		};
-		uint8_t iv[0x10];
-	} aes;
+		uint64_t key_size;
+
+	} hmac;
+
 	uint8_t buf[CCP_MAX_PAYLOAD_SIZE];
-};
+} ccp_op;
 
 struct ccp_msg {
 	union ccp_op op;
