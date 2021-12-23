@@ -12,10 +12,10 @@
 #define PAGE_SIZE 0x4000
 
 #define ALIGN_SIZE(size, alignment) \
-    (((size) + ((alignment) - 1)) & ~((alignment) - 1))
+	(((size) + ((alignment) - 1)) & ~((alignment) - 1))
 
 #define ALIGN_PAGE(size) \
-    ALIGN_SIZE(size, PAGE_SIZE)
+	ALIGN_SIZE(size, PAGE_SIZE)
 
 extern void* (*malloc)(unsigned long size, void* type, int flags) PAYLOAD_BSS;
 extern void (*free)(void* addr, void* type) PAYLOAD_BSS;
@@ -117,7 +117,7 @@ PAYLOAD_CODE int dump_raw_keys(unsigned int* key_ids, size_t key_count, unsigned
 			msg.op.hmac.key_index = key_index;
 			msg.op.hmac.key_size = key_size + 1;
 
-			printf("Preparing crypto request...\n");
+			//printf("Preparing crypto request...\n");
 			ret = sceSblServiceCrypt(&req);
 			if (ret != 0) {
 				*(int*)(ckd + max_key_size) = ret;
@@ -282,6 +282,8 @@ PAYLOAD_CODE int dump_gen_keys(unsigned int cmd, int use_hmac, unsigned int max_
 		memset(real_hash, 0, sizeof(real_hash));
 		memset(our_hash, 0, sizeof(our_hash));
 
+		printf("key_handle (code: 0x%"PRIX64").\n", key_handle);
+
 		for (key_size = 0; key_size < max_key_size; ++key_size) {
 			memset(&msg.op, 0, sizeof(msg.op));
 			msg.op.hmac.cmd = 0x09034000 | CCP_USE_KEY_HANDLE;
@@ -291,7 +293,7 @@ PAYLOAD_CODE int dump_gen_keys(unsigned int cmd, int use_hmac, unsigned int max_
 			msg.op.hmac.key_index = key_handle;
 			msg.op.hmac.key_size = key_size + 1;
 
-			printf("Preparing crypto request...\n");
+			//printf("Preparing crypto request...\n");
 			ret = sceSblServiceCrypt(&req);
 			if (ret != 0) {
 				*(int*)(ckd + max_key_size) = ret;
@@ -338,6 +340,7 @@ PAYLOAD_CODE int dump_gen_keys(unsigned int cmd, int use_hmac, unsigned int max_
 					for (i = 0; i < max_key_size; ++i)
 						ckd[i] = current_key[max_key_size - i - 1];
 				}
+				printf("\tFOUND\n");
 			} else {
 				*(int*)(ckd + max_key_size) = ESRCH;
 				printf("\tNOT FOUND\n");
@@ -384,14 +387,35 @@ error:
 }
 
 
-PAYLOAD_CODE int samu_dump(){
+PAYLOAD_CODE void hexdump(const void *data, size_t size) {
+  size_t i;
+  for (i = 0; i < size; i++) {
+    printf("%02hhX%c", ((char *)data)[i], (i + 1) % 16 ? ' ' : '\n');
+  }
+  printf("\n");
+}
 
-	unsigned int key_ids[]={0,4,5,6,7,8,12,13,16,20,24,28,32,36,40,60,64,68,72,76,80,84,88};
 
-	size_t key_count = sizeof(key_ids)/sizeof(unsigned int);
+PAYLOAD_CODE int samu_dump(void){
+
+
+	unsigned int *key_id = (unsigned int *) alloc (0x160 * 4);
+	unsigned int i = 0;
+	while (i<0x160){
+		key_id[i] = i;
+		i++;
+	}
+	uint8_t* key_data = NULL;
+	size_t key_size = 0;//can be anything as it's out param
+	
+	dump_raw_keys(key_id,0x160,0x40,&key_data,&key_size);
+
+
+	//void*,size_t
+	hexdump(&key_data, &key_size);
 
 	//sceSblSsDecryptWithPortability
-	dump_gen_keys(0x202,1,64,key_ids,key_count,NULL,NULL);
+
 
 	return 0;
 

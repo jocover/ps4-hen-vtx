@@ -1,5 +1,6 @@
 #include <ps4.h>
 
+
 #include "defines.h"
 #include "debug.h"
 #include "offsets.h"
@@ -9,6 +10,7 @@
 
 extern char kpayload[];
 unsigned kpayload_size;
+
 
 int install_payload(struct thread *td, struct install_payload_args* args)
 {
@@ -135,10 +137,10 @@ int _main(struct thread *td)
 
 //	patch_update();
 
-	initSysUtil();
-	notify("Welcome to PS4HEN v"VERSION);
+	//initSysUtil();
+	//notify("Welcome to PS4HEN v"VERSION);
 
-	printfsocket("Done.\n");
+//	printfsocket("Done.\n");
 
 #ifdef DEBUG_SOCKET
 	closeDebugSocket();

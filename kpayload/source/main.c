@@ -87,7 +87,7 @@ extern void install_fpkg_hooks(void)          PAYLOAD_CODE;
 extern void install_patches(void)             PAYLOAD_CODE;
 extern void install_fake_signout_patch(void)  PAYLOAD_CODE;
 extern int shellcore_fpkg_patch(void)         PAYLOAD_CODE;
-extern int samu_dump()			      PAYLOAD_CODE;
+extern int samu_dump(void)		      PAYLOAD_CODE;
 
 #define resolve(name) name = (void *)(kernbase + name##_addr)
 PAYLOAD_CODE void resolve_kdlsym()

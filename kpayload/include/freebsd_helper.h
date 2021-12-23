@@ -28,13 +28,7 @@
 
 #define	TAILQ_FIRST(head)	((head)->tqh_first)
 
-#define	QMD_TRACE_HEAD(head) do {					\
-	(head)->trace.prevline = (head)->trace.lastline;		\
-	(head)->trace.prevfile = (head)->trace.lastfile;		\
-	(head)->trace.lastline = __LINE__;				\
-	(head)->trace.lastfile = __FILE__;				\
-} while (0)
-
+#define	QMD_TRACE_HEAD(head)
 
 #define	TAILQ_INIT(head) do {						\
 	TAILQ_FIRST((head)) = NULL;					\

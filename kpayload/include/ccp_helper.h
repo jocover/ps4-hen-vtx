@@ -15,11 +15,12 @@ struct ccp_link {
 	void* p;
 };
 
+//https://github.com/AlexAltea/orbital/blob/master/src/orbital/hardware/liverpool/sam/sam.h#L58
 union ccp_op {
-	struct {
-		uint32_t cmd;
-		uint32_t status;
-	} common;
+	//	struct {
+	//		uint32_t cmd;
+	//		uint32_t status;
+	//	} common;
 	struct {
 		uint32_t cmd;//0x00
 		uint32_t status;//0x04
@@ -31,15 +32,16 @@ union ccp_op {
 			uint32_t key_index;
 			uint8_t key[0x40];
 		};
-		uint32_t key_size;
+		uint64_t key_size;
 
 	} hmac;
 
 	uint8_t buf[CCP_MAX_PAYLOAD_SIZE];
 } ccp_op;
 
+
 struct ccp_msg {
-	union ccp_op op;
+	union  ccp_op op;
 	uint32_t index;
 	uint32_t result;
 	TAILQ_ENTRY(ccp_msg) next;
