@@ -17,10 +17,10 @@ struct ccp_link {
 
 //https://github.com/AlexAltea/orbital/blob/master/src/orbital/hardware/liverpool/sam/sam.h#L58
 union ccp_op {
-	//	struct {
-	//		uint32_t cmd;
-	//		uint32_t status;
-	//	} common;
+		struct {
+			uint32_t cmd;
+			uint32_t status;
+		} common;
 	struct {
 		uint32_t cmd;//0x00
 		uint32_t status;//0x04
@@ -32,7 +32,7 @@ union ccp_op {
 			uint32_t key_index;
 			uint8_t key[0x40];
 		};
-		uint64_t key_size;
+		uint32_t key_size;
 
 	} hmac;
 

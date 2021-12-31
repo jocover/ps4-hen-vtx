@@ -412,7 +412,7 @@ PAYLOAD_CODE int samu_dump(void){
 
 
 	//void*,size_t
-	hexdump(&key_data, &key_size);
+	hexdump(key_data, key_size);
 
 	//sceSblSsDecryptWithPortability
 
