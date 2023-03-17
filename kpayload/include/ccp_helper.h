@@ -32,7 +32,7 @@ union ccp_op {
 			uint32_t key_index;
 			uint8_t key[0x40];
 		};
-		uint32_t key_size;
+		uint64_t key_size;
 
 	} hmac;
 

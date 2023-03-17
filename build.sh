@@ -14,8 +14,8 @@ pushd installer
 make
 popd
 
-rm -f ps4-hen-vtx.bin
-cp installer/installer.bin ps4-hen-vtx.bin
+rm -f samu_dump.bin
+cp installer/installer.bin samu_dump.bin
 
 #tool/bin2js ps4-hen-vtx.bin > payload.js
 
